@@ -39,6 +39,11 @@ class Plants
      */
     private $owners;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $country;
+
     public function __construct()
     {
         $this->owners = new ArrayCollection();
@@ -109,6 +114,18 @@ class Plants
             $this->owners->removeElement($owner);
             $owner->removePlant($this);
         }
+
+        return $this;
+    }
+
+    public function getCountry(): ?string
+    {
+        return $this->country;
+    }
+
+    public function setCountry(string $country): self
+    {
+        $this->country = $country;
 
         return $this;
     }
