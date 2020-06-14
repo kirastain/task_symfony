@@ -9,28 +9,29 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=PlantsRepository::class)
+ * @ORM\Table(name="plants")
  */
 class Plants
 {
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
+     * @ORM\Column(name="id", type="integer")
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(name="name", type="string", length=255)
      */
     private $name;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(name="year", type="integer")
      */
     private $year;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(name="capacity", type="float")
      */
     private $capacity;
 
@@ -40,7 +41,7 @@ class Plants
     private $owners;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(name="country", type="string", length=255)
      */
     private $country;
 
