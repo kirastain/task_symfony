@@ -3,25 +3,32 @@
 
 namespace App\Controller;
 
-use App\Entity\Plants;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\PlantsService;
 //use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\Query;
-use Doctrine\ORM\QueryBuilder;
 
 class PlantsController extends AbstractController
 {
+    private $plantsService;
+
+    /**
+     * @param PlantsService $plantsService
+     */
+    public function setPlantsService(PlantsService $plantsService)
+    {
+        $this->plantsService = $plantsService;
+    }
+
     /**
      * @Route("/plants/")
      * @return Response
      */
     public function getPlants(): Response
     {
-        $result = $this->getDoctrine()->getRepository(Plants::class)->createQueryBuilder('c')
-            ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+        $result = $this->plantsService->getAllPlants();
         return new Response(json_encode($result));
     }
 
