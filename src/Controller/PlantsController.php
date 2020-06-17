@@ -64,4 +64,22 @@ class PlantsController extends AbstractController
         $result = $this->plantsService->toPdf();
         return new Response($result->Output(), 200, array('Content-Type' => 'application/pdf'));
     }
+
+    /**
+     * @Route("/plants/xls/")
+     * @return Response
+     * @throws \PHPExcel_Exception
+     */
+    public function getXls(): Response
+    {
+        $result = $this->plantsService->toXls();
+        $response = new Response();
+        $response->headers->set('Content-Type', 'application/vnd.ms-excel');
+        $response->headers->set('Content-Disposition', 'attachment;filename="demo.xls"');
+        $response->headers->set('Cache-Control', 'max-age=0');
+        $response->prepare();
+        $response->sendHeaders();
+        $result->save('php://output');
+        return ($response);
+    }
 }

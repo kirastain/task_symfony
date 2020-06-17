@@ -7,7 +7,9 @@ use App\Entity\Plants;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Fpdf\Fpdf;
+use PHPExcel;
 use PDOException;
+use PHPExcel_IOFactory;
 
 class PlantsService
 {
@@ -147,6 +149,39 @@ class PlantsService
             return ($pdf);
         } catch (\PDOException $e) {
             throw new PDOException("Error while converting to PDF\n");
+        }
+    }
+
+    /**
+     * @throws \PHPExcel_Exception
+     */
+    public function toXls()
+    {
+        $xls = new PHPExcel();
+        $xls->getProperties()->setCreator("Daria Fedorova")
+            ->setTitle("Main Data");
+        $xls->setActiveSheetIndex(0)
+            ->setCellValue('A1', "id")
+            ->setCellValue('B1', "Name")
+            ->setCellValue('C1', "Year");
+
+        try {
+            $line = 2;
+            $result = $this->em->createQueryBuilder()
+                ->select("p")
+                ->from(Plants::class, 'p')
+                ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+            foreach ($result as $row) {
+                $xls->setActiveSheetIndex(0)
+                    ->setCellValue("A$line", $row['id'])
+                    ->setCellValue("B$line", $row["name"])
+                    ->setCellValue("C$line", $row["year"]);
+                $line += 1;
+            }
+            $objWriter = PHPExcel_IOFactory::createWriter($xls, 'Excel5');
+            return ($objWriter);
+        } catch (\PDOException $e) {
+            throw new PDOException("An error occurred while converting to .xls\n");
         }
     }
 }

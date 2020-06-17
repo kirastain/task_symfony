@@ -45,6 +45,11 @@ class Plants
      */
     private $country;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $parent;
+
     public function __construct()
     {
         $this->owners = new ArrayCollection();
@@ -127,6 +132,18 @@ class Plants
     public function setCountry(string $country): self
     {
         $this->country = $country;
+
+        return $this;
+    }
+
+    public function getParent(): ?int
+    {
+        return $this->parent;
+    }
+
+    public function setParent(int $parent): self
+    {
+        $this->parent = $parent;
 
         return $this;
     }

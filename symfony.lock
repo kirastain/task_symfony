@@ -102,6 +102,9 @@
     "php": {
         "version": "7.4"
     },
+    "phpoffice/phpexcel": {
+        "version": "1.8.2"
+    },
     "psr/cache": {
         "version": "1.0.1"
     },
