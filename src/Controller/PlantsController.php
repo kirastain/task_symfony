@@ -3,6 +3,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Plants;
 use App\Service\PlantsService;
 //use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,19 +18,18 @@ class PlantsController extends AbstractController
     /**
      * @param PlantsService $plantService
      */
-    public function setPlantsService(PlantsService $plantService)
+    public function __construct(PlantsService $plantService)
     {
         $this->plantsService = $plantService;
     }
 
     /**
      * @Route("/plants/")
-     * @param PlantsService $plantsService
      * @return Response
      */
-    public function getPlants(PlantsService $plantsService): Response
+    public function getPlants(): Response
     {
-        $result = $plantsService->getAllPlants();
+        $result = $this->plantsService->getAllPlants();
         return new Response(json_encode($result));
     }
 
@@ -40,9 +40,19 @@ class PlantsController extends AbstractController
      */
     public function getPlantById(int $currentId): Response
     {
-        $result = $this->getDoctrine()->getRepository(Plants::class)->createQueryBuilder("c")
-            ->where("c.id = $currentId")
-            ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+        $result = $this->plantsService->getPlantById($currentId);
+        return new Response(json_encode($result));
+    }
+
+    /**
+     * @Route("/plants/{currentId}", name="update_name")
+     * @param int $currentId
+     * @param string $newName
+     * @return Response
+     */
+    public function updateNameById(int $currentId, string $newName)
+    {
+        $result = $this->plantsService->updateName($currentId, $newName);
         return new Response(json_encode($result));
     }
 
