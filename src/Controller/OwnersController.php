@@ -26,4 +26,15 @@ class OwnersController extends AbstractController
         $result = $this->ownersService->getAllOwners();
         return new Response(json_encode($result));
     }
+
+    /**
+     * @param int $currentId
+     * @param string $newName
+     * @return Response
+     */
+    public function updateNameById(int $currentId, string $newName): Response
+    {
+        $result = $this->ownersService->updateName($currentId, $newName);
+        return new Response(json_encode($result));
+    }
 }

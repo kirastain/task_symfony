@@ -32,5 +32,3 @@ services:
 
     app.controller.plants_controller:
         class: App\Controller\PlantsController
-        calls:
-            - [setPlantsService, ['@App\Service\PlantsService']]

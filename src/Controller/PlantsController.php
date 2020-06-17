@@ -3,13 +3,12 @@
 
 namespace App\Controller;
 
-use App\Entity\Plants;
 use App\Service\PlantsService;
-//use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Doctrine\ORM\Query;
+use Fpdf\Fpdf;
+
 
 class PlantsController extends AbstractController
 {
@@ -34,7 +33,7 @@ class PlantsController extends AbstractController
     }
 
     /**
-     * @Route("/plants/{currentId}")
+     * @Route("/plants/plant={currentId}")
      * @param int $currentId
      * @return Response
      */
@@ -45,33 +44,24 @@ class PlantsController extends AbstractController
     }
 
     /**
-     * @Route("/plants/{currentId}", name="update_name")
+     * @Route("/plants/upd/{currentId}", name="update_name", methods={"POST"})
      * @param int $currentId
      * @param string $newName
      * @return Response
      */
-    public function updateNameById(int $currentId, string $newName)
+    public function updateNameById(int $currentId, string $newName): Response
     {
         $result = $this->plantsService->updateName($currentId, $newName);
         return new Response(json_encode($result));
     }
 
     /**
-     * @Route("/plants", name="create_plant", methods={"POST"})
+     * @Route("/plants/pdf/")
      * @return Response
      */
-    public function createPlant(): Response
+    public function getPdf(): Response
     {
-        $entityManager = $this->getDoctrine()->getManager();
-
-        $plant = new Plants();
-        $plant->setName('Kenai LNG');
-        $plant->setYear(1969);
-        $plant->setCapacity(1.5);
-        $plant->setCountry('United States');
-
-        $entityManager->persist($plant);
-        $entityManager->flush();
-        return new Response('Saved new product with id '. $plant->getId());
+        $result = $this->plantsService->toPdf();
+        return new Response($result->Output(), 200, array('Content-Type' => 'application/pdf'));
     }
 }

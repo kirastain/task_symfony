@@ -35,4 +35,26 @@ class OwnersService
             throw new \PDOException("Error getting data from the db\n" . $e);
         }
     }
+
+    /**
+     * @param int $currentId
+     * @param string $newName
+     * @return int|mixed|string
+     */
+    public function updateName(int $currentId, string $newName)
+    {
+        try {
+            $result = $this->em->createQueryBuilder()
+                ->select("p")
+                ->from(Owners::class, 'p')
+                ->update('p.name = :newName')
+                ->where('p.id = :currentId')
+                ->setParameter('currentId', $currentId)
+                ->setParameter('newName', $newName)
+                ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+            return ($result);
+        } catch (\Exception $e) {
+            throw new \PDOException("Error updating plant name\n" . $e);
+        }
+    }
 }
