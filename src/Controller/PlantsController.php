@@ -15,20 +15,21 @@ class PlantsController extends AbstractController
     private $plantsService;
 
     /**
-     * @param PlantsService $plantsService
+     * @param PlantsService $plantService
      */
-    public function setPlantsService(PlantsService $plantsService)
+    public function setPlantsService(PlantsService $plantService)
     {
-        $this->plantsService = $plantsService;
+        $this->plantsService = $plantService;
     }
 
     /**
      * @Route("/plants/")
+     * @param PlantsService $plantsService
      * @return Response
      */
-    public function getPlants(): Response
+    public function getPlants(PlantsService $plantsService): Response
     {
-        $result = $this->plantsService->getAllPlants();
+        $result = $plantsService->getAllPlants();
         return new Response(json_encode($result));
     }
 

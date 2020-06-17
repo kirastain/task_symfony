@@ -18,10 +18,14 @@ class PlantsService
 
     public function getAllPlants()
     {
-        /*$result = $this->em->createQueryBuilder()
-            ->select('*')
-            ->from(Plants::class, '*')
-            ->getQuery()->getResult(Query::HYDRATE_ARRAY);*/
-        return ("OK service");
+        try {
+            $result = $this->em->createQueryBuilder()
+                ->select("p")
+                ->from(Plants::class, 'p')
+                ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+            return ($result);
+        } catch (\Exception $e) {
+            throw new \PDOException("Error getting data from the db\n" . $e);
+        }
     }
 }

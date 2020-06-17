@@ -28,3 +28,9 @@ services:
     app.service.plants_service:
         class: App\Service\PlantsService
         arguments: ['@Doctrine\ORM\EntityManagerInterface']
+        autowire: true
+
+    app.controller.plants_controller:
+        class: App\Controller\PlantsController
+        calls:
+            - [setPlantsService, ['@App\Service\PlantsService']]
