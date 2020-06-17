@@ -57,7 +57,7 @@ class PlantsController extends AbstractController
     }
 
     /**
-     * @Route("/plants", name="create_plant")
+     * @Route("/plants", name="create_plant", methods={"POST"})
      * @return Response
      */
     public function createPlant(): Response
