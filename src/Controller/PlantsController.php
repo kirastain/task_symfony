@@ -4,10 +4,13 @@
 namespace App\Controller;
 
 use App\Service\PlantsService;
+use PDOException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Fpdf\Fpdf;
+use PHPExcel;
+use PHPExcel_IOFactory;
+
 
 
 class PlantsController extends AbstractController
@@ -20,6 +23,17 @@ class PlantsController extends AbstractController
     public function __construct(PlantsService $plantService)
     {
         $this->plantsService = $plantService;
+    }
+
+    /**
+     * @Route("/")
+     * @return Response
+     * @throws \Exception
+     */
+    public function getAll()
+    {
+        $result = $this->plantsService->getAllWithOwners();
+        return new Response(json_encode($result));
     }
 
     /**
@@ -72,14 +86,64 @@ class PlantsController extends AbstractController
      */
     public function getXls(): Response
     {
-        $result = $this->plantsService->toXls();
-        $response = new Response();
-        $response->headers->set('Content-Type', 'application/vnd.ms-excel');
-        $response->headers->set('Content-Disposition', 'attachment;filename="demo.xls"');
-        $response->headers->set('Cache-Control', 'max-age=0');
-        $response->prepare();
-        $response->sendHeaders();
-        $result->save('php://output');
-        return ($response);
+        $xls = new PHPExcel();
+        $xls->getProperties()->setCreator("Daria Fedorova")
+            ->setTitle("Main Data");
+        $xls->setActiveSheetIndex(0)
+            ->setCellValue('A1', "id")
+            ->setCellValue('B1', "Name")
+            ->setCellValue('C1', "Year");
+
+        try {
+            $line = 2;
+            $result = $this->plantsService->getAllPlants();
+            foreach ($result as $row) {
+                $xls->setActiveSheetIndex(0)
+                    ->setCellValue("A$line", $row['id'])
+                    ->setCellValue("B$line", $row["name"])
+                    ->setCellValue("C$line", $row["year"]);
+                $line += 1;
+            }
+            $objWriter = PHPExcel_IOFactory::createWriter($xls, 'Excel5');
+
+            $response = new Response($objWriter->save('php://output'), 200);
+            $response = new Response();
+            $response->headers->set('Content-Type', 'application/vnd.ms-excel');
+            $response->headers->set('Content-Disposition', 'attachment;filename="demo.xls"');
+            $response->headers->set('Cache-Control', 'max-age=0');
+            $response->prepare();
+            $response->sendHeaders();
+            return ($response);
+        } catch (\PDOException $e) {
+            throw new PDOException("An error occurred while converting to .xls\n");
+        }
+    }
+
+    /**
+     * @Route("/plants/html/")
+     * @return Response
+     */
+    public function getHtml(): Response
+    {
+        $result = $this->plantsService->getAllPlants();
+        $table = "";
+        $table = $table .  "<table border='1'><tr><th>id</th><th>Name</th><th>Year</th><th>Capacity</th><th>Country</th></tr>";
+        foreach ($result as $row) {
+            $table = $table . "<tr><td>" . $row["id"] . "</td><td>" . $row["name"] . "</td><td>" . $row["year"] . "</td><td>" . $row["capacity"] . "</td><td>" . $row["country"] . "</td></tr>";
+        }
+        $table = $table . "</table>";
+        return new Response($table);
+    }
+
+    /**
+     * @Route("/plants/delete/{currentId}")
+     * @param int $currentId
+     * @return Response
+     * @throws \Exception
+     */
+    public function deletePlants(int $currentId): Response
+    {
+        $result = $this->plantsService->deleteRows($currentId);
+        return new Response(json_encode($result));
     }
 }

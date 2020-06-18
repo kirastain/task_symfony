@@ -6,10 +6,9 @@ namespace App\Service;
 use App\Entity\Plants;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
+use Exception;
 use Fpdf\Fpdf;
-use PHPExcel;
 use PDOException;
-use PHPExcel_IOFactory;
 
 class PlantsService
 {
@@ -37,6 +36,25 @@ class PlantsService
             return ($result);
         } catch (\Exception $e) {
             throw new \PDOException("Error getting data from the db\n" . $e);
+        }
+    }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public function getAllWithOwners()
+    {
+        try {
+            $result = $this->em->createQueryBuilder()
+                ->select('p')
+                ->from(Plants::class, 'p')
+                ->join('p.owners', 'o')
+                ->addSelect('o')
+                ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+            return ($result);
+        } catch (\Exception $e) {
+            throw new \Exception("Error getting data from the db\n" . $e);
         }
     }
 
@@ -182,6 +200,36 @@ class PlantsService
             return ($objWriter);
         } catch (\PDOException $e) {
             throw new PDOException("An error occurred while converting to .xls\n");
+        }
+    }
+
+    /**
+     * @param int $currentId
+     * @throws Exception
+     */
+    public function deleteRows(int $currentId)
+    {
+        try {
+            $childIds = $this->em->createQueryBuilder()
+                ->select('p.id')
+                ->from(Plants::class, 'p')
+                ->where('p.parent = :currentId')
+                ->setParameter('currentId', $currentId)
+                ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+            $deleting = $this->em->createQueryBuilder()
+                ->delete(Plants::class, 'p')
+                ->where('p.id = :currentId')
+                ->setParameter('currentId', $currentId)
+                ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+            if (!empty($childIds)) {
+                foreach ($childIds as $childId) {
+                    $childId = $childId["id"];
+                    $this->deleteRows($childId);
+                }
+            }
+            return ($this->getAllPlants());
+        } catch (\Exception $e) {
+            throw new Exception("Can't delete\n" . $e);
         }
     }
 }
