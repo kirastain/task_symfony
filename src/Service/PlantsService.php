@@ -232,4 +232,50 @@ class PlantsService
             throw new Exception("Can't delete\n" . $e);
         }
     }
+
+    /**
+     * @param $file
+     * @return int|mixed|string
+     */
+    public function getFromCsv($file)
+    {
+        $cells = 6;
+
+        try {
+            $this->em->beginTransaction();
+
+            $tableDelete = $this->em->createQueryBuilder()
+                ->delete(Plants::class, 'p')
+                ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+
+            while ($line = fgetcsv($file)) {
+                $num = count($line);
+                if ($num == $cells && is_numeric($line[0]) == true && is_numeric($line[5])) {
+
+                    $plant = new Plants();
+                    $plant->setName($line[1]);
+                    $plant->setYear($line[2]);
+                    $plant->setCapacity($line[3]);
+                    $plant->setCountry($line[4]);
+                    $plant->setParent($line[5]);
+
+                    $this->em->persist($plant);
+                    $this->em->flush();
+                    return $this->getAllPlants();
+                } else {
+                    throw new PDOException('Wrong data format');
+                }
+            }
+            $this->em->commit();
+        } catch (\PDOException $e) {
+            $this->em->rollBack();
+            throw new PDOException("Can't update the database: " . $e);
+        }
+    }
+
+    public function updateOwners(int $currentId, array $newOwners)
+    {
+        $plant = $this->em->getRepository('Plants')->find($currentId);
+        return $plant->getOwners();
+    }
 }

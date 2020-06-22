@@ -4,6 +4,7 @@
 namespace App\Controller;
 
 use App\Service\PlantsService;
+use Exception;
 use PDOException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -141,9 +142,38 @@ class PlantsController extends AbstractController
      * @return Response
      * @throws \Exception
      */
-    public function deletePlants(int $currentId): Response
+    public function deletePlants(int $currentId): Response //не совсем понимаю, куда здесь лучше запихнуть транзакцию
     {
         $result = $this->plantsService->deleteRows($currentId);
+        return new Response(json_encode($result));
+    }
+
+    /**
+     * @Route("plants/add")
+     * @return Response
+     * @throws Exception
+     */
+    public function fromCsv(): Response //не уверена, откуда в таком формате и как вытаскивать файл, поэтому пока так
+    {
+        $file = fopen('../data.csv', 'r'); //или лучше брать и проверять через $_FILES?
+        if (isset($file)) {
+            $result = $this->plantsService->getFromCsv($file);
+            fclose($file);
+            return new Response(json_encode($result));
+        } else {
+            throw new Exception("Error updating the database: " . $e);
+        }
+    }
+
+    /**
+     * @Route("/plants/updowners/{currentId}", methods={"POST", "GET"})
+     * @param int $currentId
+     * @param array $arrOwners
+     * @return Response
+     */
+    public function updatePlantOwners(int $currentId, array $arrOwners): Response
+    {
+        $result = $this->plantsService->updateOwners($currentId, $arrOwners);
         return new Response(json_encode($result));
     }
 }
