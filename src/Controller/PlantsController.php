@@ -8,6 +8,7 @@ use Exception;
 use PDOException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use PHPExcel;
 use PHPExcel_IOFactory;
@@ -27,18 +28,18 @@ class PlantsController extends AbstractController
     }
 
     /**
-     * @Route("/")
+     * @Route("/all/", methods={"GET"})
      * @return Response
      * @throws \Exception
      */
-    public function getAll()
+    public function getPlantsWithOwners()
     {
         $result = $this->plantsService->getAllWithOwners();
         return new Response(json_encode($result));
     }
 
     /**
-     * @Route("/plants/")
+     * @Route("/plants/", methods={"GET"})
      * @return Response
      */
     public function getPlants(): Response
@@ -48,7 +49,7 @@ class PlantsController extends AbstractController
     }
 
     /**
-     * @Route("/plants/plant={currentId}")
+     * @Route("/plants/{currentId}", methods={"GET"})
      * @param int $currentId
      * @return Response
      */
@@ -59,7 +60,7 @@ class PlantsController extends AbstractController
     }
 
     /**
-     * @Route("/plants/upd/{currentId}", name="update_name", methods={"POST"})
+     * @Route("/plants/{currentId}", name="update_name", methods={"PUT"})
      * @param int $currentId
      * @param string $newName
      * @return Response
@@ -71,7 +72,7 @@ class PlantsController extends AbstractController
     }
 
     /**
-     * @Route("/plants/pdf/")
+     * @Route("/plants/pdf/", methods={"GET"})
      * @return Response
      */
     public function getPdf(): Response
@@ -81,7 +82,7 @@ class PlantsController extends AbstractController
     }
 
     /**
-     * @Route("/plants/xls/")
+     * @Route("/plants/xls/", methods={"GET"})
      * @return Response
      * @throws \PHPExcel_Exception
      */
@@ -121,7 +122,7 @@ class PlantsController extends AbstractController
     }
 
     /**
-     * @Route("/plants/html/")
+     * @Route("/plants/html/", methods={"GET"})
      * @return Response
      */
     public function getHtml(): Response
@@ -137,7 +138,7 @@ class PlantsController extends AbstractController
     }
 
     /**
-     * @Route("/plants/delete/{currentId}")
+     * @Route("/plants/{currentId}", methods={"DELETE"})
      * @param int $currentId
      * @return Response
      * @throws \Exception
@@ -149,16 +150,16 @@ class PlantsController extends AbstractController
     }
 
     /**
-     * @Route("plants/add")
+     * @Route("/plants/upd", methods={"POST"})
      * @return Response
      * @throws Exception
      */
     public function fromCsv(): Response //не уверена, откуда в таком формате и как вытаскивать файл, поэтому пока так
     {
         $file = fopen('../data.csv', 'r'); //или лучше брать и проверять через $_FILES?
-        if (isset($file)) {
-            $result = $this->plantsService->getFromCsv($file);
-            fclose($file);
+        if (isset($_FILES[0])) {
+            $result = $this->plantsService->getFromCsv($_FILES[0]);
+            fclose($_FILES[0]);
             return new Response(json_encode($result));
         } else {
             throw new Exception("Error updating the database: " . $e);
@@ -166,7 +167,7 @@ class PlantsController extends AbstractController
     }
 
     /**
-     * @Route("/plants/updowners/{currentId}", methods={"POST", "GET"})
+     * @Route("/plants/{currentId}/owners", methods={"POST"})
      * @param int $currentId
      * @param array $arrOwners
      * @return Response

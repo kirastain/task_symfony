@@ -12,6 +12,7 @@ use PDOException;
 
 class PlantsService
 {
+    const CELLS = 6;
     private $em;
 
     /**
@@ -32,7 +33,7 @@ class PlantsService
             $result = $this->em->createQueryBuilder()
                 ->select("p")
                 ->from(Plants::class, 'p')
-                ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+                ->getQuery()->getResult();
             return ($result);
         } catch (\Exception $e) {
             throw new \PDOException("Error getting data from the db\n" . $e);
@@ -239,7 +240,6 @@ class PlantsService
      */
     public function getFromCsv($file)
     {
-        $cells = 6;
 
         try {
             $this->em->beginTransaction();
@@ -250,7 +250,7 @@ class PlantsService
 
             while ($line = fgetcsv($file)) {
                 $num = count($line);
-                if ($num == $cells && is_numeric($line[0]) == true && is_numeric($line[5])) {
+                if ($num == self::CELLS && is_numeric($line[0]) == true && is_numeric($line[5])) {
 
                     $plant = new Plants();
                     $plant->setName($line[1]);
