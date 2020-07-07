@@ -45,7 +45,11 @@ class PlantsController extends AbstractController
     public function getPlants(): Response
     {
         $result = $this->plantsService->getAllPlants();
-        return new Response(json_encode($result));
+        $data = [
+            'success' => true,
+            'result'  => $result
+        ];
+        return new JsonResponse($data);
     }
 
     /**
@@ -56,8 +60,11 @@ class PlantsController extends AbstractController
     public function getPlantById(int $currentId): Response
     {
         $result = $this->plantsService->getPlantById($currentId);
-        return new Response(json_encode($result));
-    }
+        $data = [
+            'success' => true,
+            'result'  => $result
+        ];
+        return new JsonResponse($data);    }
 
     /**
      * @Route("/plants/{currentId}", name="update_name", methods={"PUT"})
@@ -68,8 +75,11 @@ class PlantsController extends AbstractController
     public function updateNameById(int $currentId, string $newName): Response
     {
         $result = $this->plantsService->updateName($currentId, $newName);
-        return new Response(json_encode($result));
-    }
+        $data = [
+            'success' => true,
+            'result'  => $result
+        ];
+        return new JsonResponse($data);    }
 
     /**
      * @Route("/plants/pdf/", methods={"GET"})

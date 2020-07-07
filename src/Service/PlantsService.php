@@ -33,7 +33,7 @@ class PlantsService
             $result = $this->em->createQueryBuilder()
                 ->select("p")
                 ->from(Plants::class, 'p')
-                ->getQuery()->getResult();
+                ->getQuery()->getArrayResult();
             return ($result);
         } catch (\Exception $e) {
             throw new \PDOException("Error getting data from the db\n" . $e);
@@ -52,7 +52,7 @@ class PlantsService
                 ->from(Plants::class, 'p')
                 ->join('p.owners', 'o')
                 ->addSelect('o')
-                ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+                ->getQuery()->getResult();
             return ($result);
         } catch (\Exception $e) {
             throw new \Exception("Error getting data from the db\n" . $e);
@@ -71,7 +71,7 @@ class PlantsService
                 ->from(Plants::class, 'p')
                 ->where('p.id = :currentId')
                 ->setParameter('currentId', $currentId)
-                ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+                ->getQuery()->getResult();
             return ($result);
         } catch (\Exception $e) {
             throw new \PDOException("Error getting data from the db\n" . $e);
@@ -93,7 +93,7 @@ class PlantsService
                 ->where('p.id = :currentId')
                 ->setParameter('currentId', $currentId)
                 ->setParameter('newName', $newName)
-                ->getQuery()->getResult(Query::HYDRATE_ARRAY);
+                ->getQuery()->getResult();
             return ($result);
         } catch (\Exception $e) {
             throw new \PDOException("Error updating plant name\n" . $e);
